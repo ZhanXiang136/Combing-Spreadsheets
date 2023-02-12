@@ -23,7 +23,7 @@ def determine_correct_pandas_conversion(file):
 
 
 def create_column_name(file_to_be_added):
-    return 'event'
+    return 'Points'
     column_list = list(file_to_be_added.columns.values)
     while True:
         new_name = input('\nWhat do you want to name your new column?: ')
@@ -43,7 +43,7 @@ def main():
     new_column_name = create_column_name(df_to_be_added)
     df_to_be_added[new_column_name] = None
 
-    if all(item in list(df_to_add.columns.values) for item in ['First Name', 'Last Name', 'Osis', 'Points']) and all(
+    if all(item in list(df_to_add.columns.values) for item in ['First Name', 'Last Name', 'Osis', 'Points', 'Hours']) and all(
             item in list(df_to_be_added.columns.values) for item in
             ['First Name', 'Last Name', 'Osis', 'Total Points']):
         index_of_total_point = list(df_to_be_added.columns.values).index('Total Points')
@@ -52,6 +52,7 @@ def main():
             points_add = row['Points']
             first_name_add = row['First Name']
             last_name_add = row['Last Name']
+            hours_add = row['Hours']
 
             found_osis = df_to_be_added.loc[df_to_be_added['Osis'] == osis_add]
             length_of_osis_found = len(found_osis)
@@ -60,22 +61,23 @@ def main():
                 row_info_added = df_to_be_added.iloc[found_osis.index[0]]
                 first_name_added = row_info_added['First Name']
                 last_name_added = row_info_added['Last Name']
-                total_point = row_info_added['Total Points'] if row_info_added['Total Points'] is None else 0
                 if first_name_added.lower().strip() == first_name_add.lower().strip() and last_name_added.lower().strip() == last_name_add.lower().strip():
                     df_to_be_added.loc[df_to_be_added['Osis'] == osis_add, [new_column_name]] = [points_add]
+                    df_to_be_added.loc[df_to_be_added['Osis'] == osis_add, ['Hours']] = [hours_add]
                 else:
                     print(f'\nOsis {osis_add} has name {first_name_add} {last_name_add} in the event spreadsheet and {first_name_added} {last_name_added} in the main spreadsheet')
                     user_input = input("Press enter to add and continue, press x to skip and continue")
                     if user_input == 'x':
-                        invalid_osis_list.append(osis_add)
+                        invalid_osis_list.append(f'{osis_add} {points_add} {hours_add}')
                     else:
                         df_to_be_added.loc[df_to_be_added['Osis'] == osis_add, [new_column_name]] = [points_add]
+                        df_to_be_added.loc[df_to_be_added['Osis'] == osis_add, ['Hours']] = [hours_add]
             else:
                 if length_of_osis_found == 0:
                     print(f'\nOSIS with {osis_add} not found in the main database')
                 else:
                     print(f'\nFound multiple OSIS with {osis_add} in the main database')
-                invalid_osis_list.append(osis_add)
+                invalid_osis_list.append(f'{osis_add} {points_add} {hours_add}')
 
         print('\nThe following osis in the main spreadsheet are not added:')
         for i in invalid_osis_list:
