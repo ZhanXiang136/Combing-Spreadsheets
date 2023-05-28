@@ -42,8 +42,16 @@ def main():
     #open up the spreadsheet
     df_main = determine_correct_pandas_conversion(main_file)
     df_event = determine_correct_pandas_conversion(event_file)
-    df_main.columns = [x.lower() for x in df_main.columns if x != 0]
-    df_event.columns = [x.lower() for x in df_event.columns if x != 0]
+
+
+    df_main.columns = [x.lower() for x in df_main.columns]
+    df_event.columns = [x.lower() for x in df_event.columns]
+    for col in df_main.columns:
+        if isinstance(df_main[col][1], str):
+            df_main[col] = df_main[col].str.lower()
+    for col in df_event.columns:
+        if isinstance(df_event[col][1], str):
+            df_event[col] = df_event[col].str.lower()
 
     invalid_list = []
 
