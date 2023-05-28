@@ -42,6 +42,8 @@ def main():
     #open up the spreadsheet
     df_main = determine_correct_pandas_conversion(main_file)
     df_event = determine_correct_pandas_conversion(event_file)
+    df_main.columns = [x.lower() for x in df_main.columns if x != 0]
+    df_event.columns = [x.lower() for x in df_event.columns if x != 0]
 
     invalid_list = []
 
@@ -51,47 +53,49 @@ def main():
     if cal_what.lower().strip() == 'points' or cal_what.lower().strip() == 'p':
         look_for_points = True
         look_for_hours = False
-        needed_column_names.append('Points')
+        needed_column_names.append('points')
     elif cal_what.lower().strip() == 'hours' or cal_what.lower().strip() == 'h':
         look_for_points = False
         look_for_hours = True
-        needed_column_names.append('Hours')
+        needed_column_names.append('hours')
     else:
         look_for_points = True
         look_for_hours = True
-        needed_column_names.append('Hours')
-        needed_column_names.append('Points')
+        needed_column_names.append('hours')
+        needed_column_names.append('points')
 
     pattern = input("Sort by what? (E)mail, (O)sis?: ")
     if pattern.lower().strip() == 'osis' or pattern.lower().strip() == 'o':
-        pattern = 'Osis'
-        needed_column_names.append('Osis')
+        pattern = 'osis'
+        needed_column_names.append('osis')
     elif pattern.lower().strip() == 'email' or pattern.lower().strip() == 'e':
-        pattern = 'Email'
-        needed_column_names.append('Email')
+        pattern = 'email'
+        needed_column_names.append('email')
+
+    needed_column_names = [x.lower() for x in needed_column_names]
 
 
     if all(item in list(df_event.columns.values) for item in needed_column_names) and all(
             item in list(df_main.columns.values) for item in needed_column_names):
         for index, row in df_event.iterrows():
             pattern_add = row[pattern]
-            points_add = row['Points'] if look_for_points else None
-            hours_add = row['Hours'] if look_for_hours else None
-            first_name_add = row['First Name'].capitalize()
-            last_name_add = row['Last Name'].capitalize()
+            points_add = row['points'] if look_for_points else None
+            hours_add = row['hours'] if look_for_hours else None
+            first_name_add = row['first name']
+            last_name_add = row['last name']
 
             found_row = df_main.loc[df_main[pattern] == pattern_add]
             len_of_found_rows = len(found_row)
 
             if len_of_found_rows >= 1:
                 row_info_added = df_main.iloc[found_row.index[0]]
-                first_name_added = row_info_added['First Name']
-                last_name_added = row_info_added['Last Name']
+                first_name_added = row_info_added['first name']
+                last_name_added = row_info_added['last name']
                 if first_name_added.lower().strip() == first_name_add.lower().strip() and last_name_added.lower().strip() == last_name_add.lower().strip():
                     if look_for_points:
-                        df_main.loc[df_main[pattern] == pattern_add, ['Points']] = [points_add]
+                        df_main.loc[df_main[pattern] == pattern_add, ['points']] = [points_add]
                     if look_for_hours:
-                        df_main.loc[df_main[pattern] == pattern_add, ['Hours']] = [hours_add]
+                        df_main.loc[df_main[pattern] == pattern_add, ['hours']] = [hours_add]
                 else:
                     print(f'\n{pattern} {pattern_add} has name {first_name_add} {last_name_add} in the event spreadsheet and {first_name_added} {last_name_added} in the main spreadsheet')
                     user_input = input("Press enter to add and continue, press x to skip and continue")
@@ -99,9 +103,9 @@ def main():
                         invalid_list.append(pattern_add)
                     else:
                         if look_for_points:
-                            df_main.loc[df_main[pattern] == pattern_add, ['Points']] = [points_add]
+                            df_main.loc[df_main[pattern] == pattern_add, ['points']] = [points_add]
                         if look_for_hours:
-                            df_main.loc[df_main[pattern] == pattern_add, ['Hours']] = [hours_add]
+                            df_main.loc[df_main[pattern] == pattern_add, ['hours']] = [hours_add]
             else:
                 if len_of_found_rows == 0:
                     print(f'\n{pattern} with {pattern_add} not found in the main database')
